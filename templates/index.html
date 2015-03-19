@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block body_block %}
+
+{% from "_formhelpers.html" import render_field %}
+	<div class="panel panel-default">
+		<div class="bs-example bs-example-tabs">		
+			<ul class="nav nav-tabs navbar-inverse" role="tablist">
+				<li role="tab" class="active"><a href="#Upload" data-toggle="tab">Upload</a></li>
+				<li role="tab"><a href="#Search" data-toggle="tab">Search</a></li>
+				<li role="tab"><a href="#Update" data-toggle="tab">Update</a></li>
+				<li role="tab"><a href="#Delete" data-toggle="tab">Delete</a></li>
+			</ul>
+
+			<div id="myTabContent" class="tab-content">
+	<!-- Upload -->
+				<div class="tab-pane fade in active" id="Upload">
+				<div class="panel-heading">Upload Contacts</div>
+				<div class="panel-body">
+					<form class="navbar-form navbar-left" enctype="multipart/form-data" method=post action="/">
+						<div class="form-group">
+							<input id="filename" type='text' class="form-control"  placeholder="No File Chosen">
+							<a class="file-input-wrapper btn btn-default" id=filename >
+								{{ render_field(form.image, id="upload", class="btn btn-primary", class="form-control" , required = True) }}
+							</a>
+						</div>
+						<input type="submit" class="btn btn-default" value=Upload>
+					</form>
+				</div>
+				</br>
+
+					{% if message %}
+						<div class="panel panel-default">
+							<div class="panel-heading">Message</div>
+							<div class="panel-body">
+								<p>{{ message }}</p>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+
+		<!-- SEARCH -->
+				<div class="tab-pane fade " id="Search">
+				<div class="panel-heading">Search Contacts</div>
+				<div class="panel-body">
+					<form class="navbar-form navbar-left" id="search" enctype="multipart/form-data" method=post action="/search">
+						{{ render_field(s_form.contact, id="upload", class="btn btn-primary", class="form-control" , required = True) }}
+						<p><input type="submit" class="btn btn-default" value=Search>
+					</form>
+				</div>
+				</div>
+				{% if results %}
+					{% set i = 1 %}
+					{% for result in results %}
+						<p>Contact {{ i }}
+						{% for key,value in result.iteritems() %}
+							<p>
+							
+							 <label>{{ key }} </label>  <input  type='text' class="form-control" style="width: 500px; float:right;" value={{ value }}>
+						{% endfor %} 
+						{% set i = i + 1 %}
+					{% endfor %}
+				{% endif %}
+					
+			
+
+				
+			</div>
+
+
+<!-- Update -->
+
+<!-- Delete -->
+		</div>
+	</div>
+		
+
+<script>
+document.getElementById('upload').onchange = uploadOnChange;
+    
+function uploadOnChange() {
+    var filename = this.value;
+    var lastIndex = filename.lastIndexOf("\\");
+    if (lastIndex >= 0) {
+        filename = filename.substring(lastIndex + 1);
+    }
+    document.getElementById('filename').value = filename;
+}
+
+
+</script>
+{% endblock %}
