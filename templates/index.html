@@ -2,23 +2,12 @@
 {% block body_block %}
 
 {% from "_formhelpers.html" import render_field %}
-	<div class="panel panel-default">
-		<div class="bs-example bs-example-tabs">		
-			<ul class="nav nav-tabs navbar-inverse" role="tablist">
-				<li role="tab" class="active"><a href="#Upload" data-toggle="tab">Upload</a></li>
-				<li role="tab"><a href="#Search" data-toggle="tab">Search</a></li>
-				<li role="tab"><a href="#Update" data-toggle="tab">Update</a></li>
-				<li role="tab"><a href="#Delete" data-toggle="tab">Delete</a></li>
-			</ul>
-
-			<div id="myTabContent" class="tab-content">
-	<!-- Upload -->
-				<div class="tab-pane fade in active" id="Upload">
-				<div class="panel-heading">Upload Contacts</div>
+<div class="panel panel-default">
+			<div class="panel-heading"><h4>Upload Contacts</h4></div>
 				<div class="panel-body">
 					<form class="navbar-form navbar-left" enctype="multipart/form-data" method=post action="/">
 						<div class="form-group">
-							<input id="filename" type='text' class="form-control"  placeholder="No File Chosen">
+							<input id="filename" type="text" class="form-control"  placeholder="No File Chosen">
 							<a class="file-input-wrapper btn btn-default" id=filename >
 								{{ render_field(form.image, id="upload", class="btn btn-primary", class="form-control" , required = True) }}
 							</a>
@@ -26,56 +15,71 @@
 						<input type="submit" class="btn btn-default" value=Upload>
 					</form>
 				</div>
-				</br>
 
-					{% if message %}
-						<div class="panel panel-default">
-							<div class="panel-heading">Message</div>
-							<div class="panel-body">
-								<p>{{ message }}</p>
-							</div>
-						</div>
-					{% endif %}
-				</div>
-
-		<!-- SEARCH -->
-				<div class="tab-pane fade " id="Search">
-				<div class="panel-heading">Search Contacts</div>
+			</div>
+	{% if message %}
+		<div class="panel panel-default">
+			<div class="panel-heading"><h4>Message</h4></div>
+			<div class="panel-body">
+				<p>{{ message }}</p>
+			</div>
+		</div>
+	{% endif %}
+	<div class="panel panel-default">
+			<div class="panel-heading"><h4>Search Contacts</h4></div>
 				<div class="panel-body">
-					<form class="navbar-form navbar-left" id="search" enctype="multipart/form-data" method=post action="/search">
-						{{ render_field(s_form.contact, id="upload", class="btn btn-primary", class="form-control" , required = True) }}
-						<p><input type="submit" class="btn btn-default" value=Search>
+					<form class="navbar-form navbar-left"  enctype="multipart/form-data" method=post action="/search">
+						<div class="form-group">
+							{{ render_field(s_form.contact, id="search", class="btn btn-primary", class="form-control" , required = True) }}
+						</div>
+						<br>
+						<p style="margin-top: 1mm">
+						<input type="submit" class="btn btn-default" value=Search>
 					</form>
 				</div>
-				</div>
-				{% if results %}
+			</div>
+	{% if results %}
+	<div class="panel panel-default">
+			<div class="panel-heading"><h4>Results</h4></div>
+				<div class="panel-body">
+					<form class="navbar-form navbar-left" id="update" enctype="multipart/form-data" method=post action="/update">
 					{% set i = 1 %}
+					<p><input  type="submit" style="visibility:hidden;" id="Update" name=Update class="btn btn-default" value=Update>&nbsp;
+					<input  type="submit" id="Delete" style="visibility:hidden;" name=Update class="btn btn-default" value=Delete>
 					{% for result in results %}
-						<p>Contact {{ i }}
-						{% for key,value in result.iteritems() %}
-							<p>
-							
-							 <label>{{ key }} </label>  <input  type='text' class="form-control" style="width: 500px; float:right;" value={{ value }}>
-						{% endfor %} 
+						{% set p_key = result[0] %}
+						{% set rad_id = result[0] + "_rad"   %}
+						<div  id = {{p_key}}>
+							<p style="margin-top:1cm">
+							<input type="checkbox"  onclick="showSubmit(this, this.name)"  id="{{ p_key + "Checkbox"}}" name="{{p_key}}">&nbsp;&nbsp;<label for="{{ p_key + "Checkbox"}}"><b>Contact {{ i }} </label></b></p>
+							{% for key,value in result[1].iteritems() %}
+								<p style="margin-top : 2mm"></p>
+								
+								{% set key_name = p_key + "-" + key %}
+																	
+								 <label style="display: inline-block; width:100px;">{{ key }} </label>  
+								 {% if key == 'Name' %}
+									<input  type="text" id="{{ key_name }}"  name= "{{ key_name }}" style="width:7cm" class="form-control"  value="{{ value }}" readonly required>
+								 {% elif key == 'Mobile1' %}
+									<input  type="number" id="{{ key_name }}"  name= "{{ key_name }}" style="width:7cm" class="form-control"  value="{{ value }}" readonly required>
+								 {% elif value %}
+									 
+									 <input  type="number" id="{{ key_name }}"  name= "{{ key_name }}" style="width:7cm" class="form-control"  value="{{ value }}" readonly>
+								 {% else %}
+									 <input  type="number" id="{{ key_name }}"  name= "{{ key_name }}" style="width:7cm" class="form-control"   placeholder="(EMPTY)">
+								 {% endif %}	
+							{% endfor %} 
+						</div>
 						{% set i = i + 1 %}
 					{% endfor %}
-				{% endif %}
-					
-			
-
-				
+					</form>
+				</div>
 			</div>
-
-
-<!-- Update -->
-
-<!-- Delete -->
-		</div>
-	</div>
-		
+	
+	{% endif %}
 
 <script>
-document.getElementById('upload').onchange = uploadOnChange;
+document.getElementById("upload").onchange = uploadOnChange;
     
 function uploadOnChange() {
     var filename = this.value;
@@ -83,7 +87,50 @@ function uploadOnChange() {
     if (lastIndex >= 0) {
         filename = filename.substring(lastIndex + 1);
     }
-    document.getElementById('filename').value = filename;
+    document.getElementById("filename").value = filename;
+}
+</script>
+<script>
+
+function showSubmit(me,someid){
+	console.log(me.name);
+	console.log(me.checked);
+	if (me.style.checked == true){
+		me.style.checked = false;
+		var inputs = document.getElementsByTagName("input"); //or document.forms[0].elements;
+		var checked = []; //will contain all checked checkboxes
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox") {
+				if (inputs[i].checked) {
+					checked.push(inputs[i]);
+				}
+			}
+		}
+		var nbChecked = checked.length;
+		if (nbChecked == 0) {
+			document.getElementById("Update").style.visibility = "hidden";
+			document.getElementById("Delete").style.visibility = "hidden";
+		}
+		var div = document.getElementById(someid);
+		var i;
+		for (i=0;i<div.childNodes.length;i++)
+		{
+			div.childNodes[i].readOnly=true;
+		}
+
+	}
+	else{
+		me.style.checked = true;
+		document.getElementById("Update").style.visibility = "visible";
+		document.getElementById("Delete").style.visibility = "visible";
+		var div = document.getElementById(someid);
+		var i;
+		for (i=0;i<div.childNodes.length;i++)
+		{
+			div.childNodes[i].readOnly=false;
+		}
+	}
+	
 }
 
 
